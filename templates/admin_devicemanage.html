@@ -1,0 +1,205 @@
+
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Admin management
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='dashboard.css')}}">
+
+{% endblock %}
+
+{% block navbar %}
+    <nav class="navbar navbar-inverse sticky-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#" style="font-weight: 650;">DREAM's Equipment management</a>
+          <a class="navbar-brand" href="#" style="font-weight: 500; color: chocolate;">[Admin device management]</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <!-- <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Profile</a></li> -->
+            <li><a href="{{ url_for('logout') }}" style="font-weight: 650;">Log Out</a></li>
+          </ul>
+          <!-- <form class="navbar-form navbar-right">
+            <input type="text" class="form-control" placeholder="Search for device">
+          </form> -->
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid mt-2">
+      <div class="row">
+       <form action="{{url_for('admin_manage')}}" method="GET">
+         <div class="col-sm-3 col-md-2 sidebar btn-group-vertical" role="group" >
+           <ul class="nav nav-sidebar navbar-light">
+            <li style="font-weight: 500; font-size: x-large;">Lab's Equipment</li>
+            <hr>
+             <li><input style="color: chocolate;" type='submit' class='btn btn-link' name='radio'  value='All Devices' autocomplete="off" checked></input></li>
+             <li><input style="color: chocolate;" type='submit' class='btn btn-link' name='radio'  value='Multimeter' autocomplete="off"></input></li>
+             <li><input style="color: chocolate;" type='submit' class='btn btn-link' name='radio'  value='Power Supply' autocomplete="off"></input></li>
+             <li><input style="color: chocolate;" type='submit' class='btn btn-link' name='radio'  value='Oscilloscope' autocomplete="off"></input></li>
+             <li><input style="color: chocolate;" type='submit' class='btn btn-link' name='radio'  value='Signal generator' autocomplete="off"></input></li>
+             <li><input style="color: chocolate;" type='submit' class='btn btn-link' name='radio'  value='MCU' autocomplete="off"></input></li>
+             <li><input style="color: chocolate;" type='submit' class='btn btn-link' name='radio'  value='Sensor' autocomplete="off"></input></li>
+             <li><input style="color: chocolate;" type='submit' class='btn btn-link' name='radio'  value='Other' autocomplete="off"></input></li>
+        </form>
+             <hr>             
+             {% if permission == 'admin' %}
+             <li style="font-weight: 500; font-size: x-large;">Device management</li>
+        
+             <hr>
+             <li><a data-toggle='modal' data-target='#modaledit' class='btn btn-default' style="font-weight: 600; color: chocolate;  background-color: rgba(0, 100, 0, 0.246);" href="#" >Add Device</a></li>                  
+                <div id="modaledit" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          <h4 class="modal-title">Device detail</h4>
+                        </div>
+                        <div class="modal-body">
+                          <form action="{{url_for('admin_manage')}}" method="POST">
+                            <div class="form-group">
+                              {{ form.hidden_tag() }}
+                              {{ wtf.form_field(form.device) }}
+                            </div>
+                            <div class="form-group">                              
+                              {{ wtf.form_field(form.type) }}
+                            </div>
+                            <div>
+                                {{ wtf.form_field(form.status) }}                                                                  
+                            </div>
+                            <div class="form-group">
+                                {{ wtf.form_field(form.serial) }}
+                            </div>
+                            <div class="form-group">
+                                {{ wtf.form_field(form.description) }}
+                            </div>
+                            <div class="form-group">
+                               <input type="hidden" name="filter" value={{filter}}>
+                               <button href="{{ url_for('admin_manage') }}" class="btn btn-primary" type="submit" name='subbt' value='Add'>Add</button>
+                               <script></script>
+                            </div>
+                          </form>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                   </div>
+               
+                                                 
+             <li><a class='btn btn-default' style="color: #337ab7; "href="/dashboard" >Get back to Pick/Return </a></li>
+             <!-- <li><a href="#" style="color: chocolate;" >Manage member</a></li> -->
+             {% endif %}
+            </ul>
+         </div>
+      </form>
+{% endblock %}
+{% block content %}
+        <div>
+          <h2 class="sub-header"> {{ name }}//{{filter}} </h2>{% if permission == 'admin' %}<h4 style="color: chocolate;"> [{{ permission }}]</h4>{% endif %}
+          <hr>
+          <!-- <h3 class="sub-header">{{ filter }}</h3> -->
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Device</th>
+                  <th>Type</th>
+                  <th>Serial</th>
+                  <th>Status</th>
+                  <th>Description</th>
+                  <th>Remove/Edit</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for row in data %}
+                <tr>
+                  <td>{{ row.id }}</td>
+                  <td>{{ row.device }}</td>
+                  <td>{{ row.type }}</td>
+                  <td>{{ row.serial }}</td>
+                  <td>{{ row.status }}</td>
+                  <td>{{ row.description }}</td>
+                  <td>                                           
+                    <button class="btn btn-warning btn-sm" data-toggle='modal' data-target='#modaledit{{row.id}}'>Edit</button>   
+                    <div id="modaledit{{row.id}}" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                              <h4 class="modal-title">Edit device detail</h4>
+                            </div>
+                            <div class="modal-body">
+                              <form action="{{url_for('admin_manage')}}" method="POST">
+                                <div class="form-group">
+                                  <label>device:</label>
+                                  <input type="hidden" name="id" value="{{row.id}}">
+                                  <input type="text" class="form-control" name="device" value="{{row.device}}">
+                                </div>
+                                <div class="form-group">
+                                  <label>type:</label>
+                                  <input type="text" class="form-control" name="type" value="{{row.type}}">
+                                </div>
+                                <div>
+                                  <label>Status : </label>
+                                  <input type="radio" id="not_change" name="status" value="{{row.status}}" checked>
+                                  <label>Same | </label>                                  
+                                  <span></span>
+                                  <input type="radio" id="available" name="status" value="Available">
+                                  <label for="available">Available | </label>                                  
+                                  <span></span>
+                                  <input type="radio" id="unavailable" name="status" value="Unavailable">
+                                  <label for="unavailable">Unavailable</label>                                                                  
+                                </div>
+                                <div class="form-group">
+                                    <label>Serial:</label>
+                                    <input type="text" class="form-control" name="serial" value="{{row.serial}}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description:</label>
+                                    <input type="text" class="form-control" name="description" value="{{row.description}}">
+                                </div>
+                                <div class="form-group">
+                                  <input type="hidden" name="deviceid" value={{row.id}}>
+                                  <input type="hidden" name="filter" value={{filter}}> 
+                                  <button class="btn btn-primary" type="submit" name='subbt' value='Edit'>Update</button>
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                          </div>
+                        </div>
+                       </div>
+                    <form class="btn-group" role="group" action="{{url_for('admin_manage')}}" method="POST">
+                      <input type="hidden" name="deviceid" value={{row.id}}>
+                      <input type="hidden" name="filter" value={{filter}}>                            
+                      <button class="btn btn-danger btn-sm" type="submit" name='subbt' value='Remove'>Remove</button>
+                    </form>
+                    </form>
+                    </td>
+                  
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
